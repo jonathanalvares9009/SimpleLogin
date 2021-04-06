@@ -6,8 +6,10 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.alvaresjonathan.simplelogin.FacebookLogin.callbackManager
-import com.facebook.*
-import com.facebook.login.LoginManager
+import com.facebook.CallbackManager
+import com.facebook.FacebookCallback
+import com.facebook.FacebookException
+import com.facebook.GraphRequest
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -16,7 +18,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
-import org.json.JSONException
 import java.util.*
 
 
@@ -44,60 +45,49 @@ class LoginActivity : AppCompatActivity() {
         facebookLoginButton = findViewById(R.id.facebook_login_button)
         googleLoginButton = findViewById(R.id.google_login_button)
 
-        facebookLoginButton.setOnClickListener(
-                View.OnClickListener {
-                    var success = 0
-                    LoginManager.getInstance().logInWithReadPermissions(this, (Arrays.asList("public_profile", "email", "last_name")))
-                    LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult?> {
-                        override fun onSuccess(loginResult: LoginResult?) {
-                            Log.d("Demo", "Login Successful")
-                            try {
-                                val accessToken = AccessToken.getCurrentAccessToken()
-                                val request = GraphRequest.newMeRequest(
-                                        accessToken
-                                ) { `object`, response ->
-                                    Log.d("TAG", "Graph Object :$`object`")
-                                    try {
-                                        val splitStr = `object`.getString("name").split("\\s+").toTypedArray()
-                                        var FBFirstname = splitStr[0]
-//                            var FBLastName = `object`.getString("last_name")
-                                        var FBEmail = `object`.getString("email")
-                                        var FBUUID = `object`.getString("id")
-                                        Log.e("TAG", "firstnamev: " + splitStr[0])
-//                            Log.e("TAG", "last name: " + FBLastName)
-                                        Log.e("TAG", "Email id : " + `object`.getString("email"))
-                                        Log.e("TAG", "ID :" + `object`.getString("id"))
-                                    } catch (e: JSONException) {
-                                        e.printStackTrace()
-                                    }
-                                }
-                                val parameters = Bundle()
-                                parameters.putString("fields", "id,name,link,birthday,gender,email")
-                                request.parameters = parameters
-                                request.executeAsync()
+        facebookLoginButton.setPermissions(Arrays.asList("public_profile", "email"))
+        facebookLoginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(loginResult: LoginResult) {
+                Log.e("TAG", "login")
+                //                Toast.makeText(MainActivity.this,"Logged In successfully",Toast.LENGTH_LONG).show();
+                //Use GraphApi to get the information into the app.
+                val request = GraphRequest.newMeRequest( //pass two parameter
+                        loginResult.accessToken
+                )  //one is the current token
+                { `object`, response ->
+                    //2nd is grahJSONObject callback
+                    Log.v("MainActivity", response.toString())
 
-                                success = 1
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-                        }
-
-                        override fun onCancel() {
-                            // App code
-                            Log.v("MainActivity", "cancel")
-                        }
-
-                        override fun onError(exception: FacebookException) {
-                            // App code
-                            Log.v("MainActivity", exception.cause.toString())
-                        }
-                    })
-
-                    if (success == 1) {
-                        startActivity(Intent(this, SignOutActivity::class.java))
+                    // Application code
+                    try {
+                        val obj = `object`.toString() //get complete JSON object refrence.
+                        val name = `object`.getString("name") //get particular JSON Object
+                        val email = `object`.getString("email")
+                        val id = `object`.getString("id")
+                        Log.e("completeObjInfo", obj)
+                        Log.e("TAGObjectInfo", "id: $id")
+                        Log.e("TAGObjectInfo", "name: $name")
+                        Log.e("TAGObjectInfo", "email: $email")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
                 }
-        )
+                val parameters = Bundle()
+                parameters.putString("fields", "id,name,email,gender,birthday") //set these parameter
+                request.parameters = parameters
+                request.executeAsync() //exuecute task in seprate thread
+            }
+
+            override fun onCancel() {
+                // App code
+                Log.v("MainActivity", "cancel")
+            }
+
+            override fun onError(exception: FacebookException) {
+                // App code
+                Log.v("MainActivity", exception.cause.toString())
+            }
+        })
 
         googleLoginButton.setOnClickListener(
                 View.OnClickListener {
