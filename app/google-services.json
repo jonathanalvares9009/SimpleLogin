@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "1037924149287-0dsi1snlig6cnjtb4spi81gcgh7v9uku.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alvaresjonathan.simplelogin",
+            "certificate_hash": "418eaa52b9e0dda7ddb257c53bd98948ce86a2e8"
+          }
+        },
+        {
+          "client_id": "1037924149287-ioe87a8l463cfh89t8m0sqevujsbkosc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alvaresjonathan.simplelogin",
+            "certificate_hash": "4ae314047222b0b34500727124cf9e477c95d72b"
+          }
+        },
+        {
           "client_id": "1037924149287-ttangv9lhoac6aoh0nf6enup5ajhalit.apps.googleusercontent.com",
           "client_type": 3
         }

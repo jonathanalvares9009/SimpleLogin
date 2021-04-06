@@ -101,9 +101,9 @@ class LoginActivity : AppCompatActivity() {
         val account = GoogleSignIn.getLastSignedInAccount(this)
 
         if(account!=null) {
-            account.email?.let { Log.i("account", it) }
-            account.givenName?.let { Log.i("first_name", it) }
-            account.familyName?.let { Log.i("last_name", it) }
+            account.email?.let { Log.e("account", it) }
+            account.givenName?.let { Log.e("first_name", it) }
+            account.familyName?.let { Log.e("last_name", it) }
         }
     }
 
@@ -124,6 +124,7 @@ class LoginActivity : AppCompatActivity() {
 
             try {
                 val account : GoogleSignInAccount? = task.getResult(ApiException::class.java)
+                onStart()
                 startActivity(Intent(this, SignOutActivity::class.java))
 
             } catch (e: ApiException) {
