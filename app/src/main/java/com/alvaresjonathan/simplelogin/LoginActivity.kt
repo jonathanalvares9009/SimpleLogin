@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.alvaresjonathan.simplelogin.FacebookLogin.callbackManager
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -28,6 +27,8 @@ class LoginActivity : AppCompatActivity() {
 
     private val RC_SIGN_IN = 1
     private var mGoogleSignInClient: GoogleSignInClient? = null
+
+    lateinit var callbackManager: CallbackManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
