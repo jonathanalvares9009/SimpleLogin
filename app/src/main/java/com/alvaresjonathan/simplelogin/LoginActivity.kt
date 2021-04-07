@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.alvaresjonathan.simplelogin.FacebookLogin.callbackManager
 import com.facebook.CallbackManager
@@ -18,6 +19,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 
 
@@ -68,6 +72,7 @@ class LoginActivity : AppCompatActivity() {
                         Log.e("TAGObjectInfo", "id: $id")
                         Log.e("TAGObjectInfo", "name: $name")
                         Log.e("TAGObjectInfo", "email: $email")
+                        saveUser(createRequest(email.toString(), name.toString()))
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -99,12 +104,14 @@ class LoginActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         val account = GoogleSignIn.getLastSignedInAccount(this)
-
+        var name: String = "Jonathan"
+        var email: String = "alvares.jonthan@yahoo.com"
         if(account!=null) {
-            account.email?.let { Log.e("account", it) }
-            account.givenName?.let { Log.e("first_name", it) }
-            account.familyName?.let { Log.e("last_name", it) }
+            account.email?.let { email = it }
+            account.givenName?.let { name = it }
+            account.familyName?.let { name += " $it" }
         }
+        saveUser(createRequest(email, name))
     }
 
     private fun signIn() {
@@ -136,5 +143,34 @@ class LoginActivity : AppCompatActivity() {
         if(callbackManager.onActivityResult(requestCode, resultCode, data)) {
             return;
         }
+    }
+
+    fun createRequest(email: String, name: String): UserRequest? {
+        val userRequest: UserRequest = UserRequest()
+        userRequest.email = email
+        userRequest.name = name
+        return userRequest
+    }
+
+    fun saveUser(userRequest: UserRequest?) {
+        Log.e("error", userRequest.toString())
+        val userResponseCall = ApiClient.getUserService().saveUser(userRequest)
+        userResponseCall.enqueue(object : Callback<UserResponse?> {
+            override fun onResponse(
+                call: Call<UserResponse?>,
+                response: Response<UserResponse?>
+            ) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@LoginActivity, "Saved data", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@LoginActivity, "Couldn't save data", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<UserResponse?>, t: Throwable) {
+                Toast.makeText(this@LoginActivity, "Couldn't save data"+t.localizedMessage, Toast.LENGTH_SHORT).show()
+                Log.e("data error", t.localizedMessage)
+            }
+        })
     }
 }
